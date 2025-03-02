@@ -1,0 +1,33 @@
+<svg width="800" height="600" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="600" fill="#F5F5F5"/>
+  <rect x="100" y="100" width="600" height="400" rx="8" fill="white" stroke="#E5E5E5" stroke-width="2"/>
+  
+  <!-- Workflow diagram elements -->
+  <circle cx="200" cy="200" r="40" fill="#3B82F6" opacity="0.8"/>
+  <circle cx="400" cy="200" r="40" fill="#10B981" opacity="0.8"/>
+  <circle cx="600" cy="200" r="40" fill="#8B5CF6" opacity="0.8"/>
+  
+  <circle cx="200" cy="400" r="40" fill="#EF4444" opacity="0.8"/>
+  <circle cx="400" cy="400" r="40" fill="#F59E0B" opacity="0.8"/>
+  <circle cx="600" cy="400" r="40" fill="#3B82F6" opacity="0.8"/>
+  
+  <!-- Connection lines -->
+  <line x1="240" y1="200" x2="360" y2="200" stroke="#737373" stroke-width="3"/>
+  <line x1="440" y1="200" x2="560" y2="200" stroke="#737373" stroke-width="3"/>
+  
+  <line x1="200" y1="240" x2="200" y2="360" stroke="#737373" stroke-width="3"/>
+  <line x1="400" y1="240" x2="400" y2="360" stroke="#737373" stroke-width="3"/>
+  <line x1="600" y1="240" x2="600" y2="360" stroke="#737373" stroke-width="3"/>
+  
+  <line x1="240" y1="400" x2="360" y2="400" stroke="#737373" stroke-width="3"/>
+  <line x1="440" y1="400" x2="560" y2="400" stroke="#737373" stroke-width="3"/>
+  
+  <!-- Icons inside circles -->
+  <text x="200" y="205" text-anchor="middle" font-family="Arial" font-size="20" fill="white">1</text>
+  <text x="400" y="205" text-anchor="middle" font-family="Arial" font-size="20" fill="white">2</text>
+  <text x="600" y="205" text-anchor="middle" font-family="Arial" font-size="20" fill="white">3</text>
+  
+  <text x="200" y="405" text-anchor="middle" font-family="Arial" font-size="20" fill="white">4</text>
+  <text x="400" y="405" text-anchor="middle" font-family="Arial" font-size="20" fill="white">5</text>
+  <text x="600" y="405" text-anchor="middle" font-family="Arial" font-size="20" fill="white">6</text>
+</svg> 
