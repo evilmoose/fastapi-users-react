@@ -1,0 +1,15 @@
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+/backend/.venv
+# Ignore Python cache
+__pycache__/
+**/__pycache__/
+
+# Ignore compiled Python files
+*.pyc
+*.pyo
+*.pyd
