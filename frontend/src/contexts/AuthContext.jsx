@@ -33,12 +33,15 @@ export const AuthProvider = ({ children }) => {
     setError(null);
     
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/auth/jwt/login`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: JSON.stringify({ email, password }),
+        body: new URLSearchParams({
+          username: email,
+          password: password,
+        }),
       });
       
       const data = await response.json();
@@ -47,12 +50,26 @@ export const AuthProvider = ({ children }) => {
         throw new Error(data.detail || 'Login failed');
       }
       
-      // Store token and user data
+      // Store token
       localStorage.setItem('token', data.access_token);
-      localStorage.setItem('user', JSON.stringify(data.user));
       
-      setCurrentUser(data.user);
-      return data;
+      // Fetch user data
+      const userResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/users/me`, {
+        headers: {
+          'Authorization': `Bearer ${data.access_token}`
+        }
+      });
+      
+      const userData = await userResponse.json();
+      
+      if (!userResponse.ok) {
+        throw new Error('Failed to fetch user data');
+      }
+      
+      // Store user data
+      localStorage.setItem('user', JSON.stringify(userData));
+      setCurrentUser(userData);
+      return { ...data, user: userData };
     } catch (err) {
       setError(err.message);
       throw err;
@@ -67,7 +84,7 @@ export const AuthProvider = ({ children }) => {
     setError(null);
     
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/register`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -109,6 +126,7 @@ export const AuthProvider = ({ children }) => {
 
   const value = {
     currentUser,
+    isAdmin: currentUser?.is_superuser,
     loading,
     error,
     login,
@@ -119,7 +137,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={value}>
-      {children}
+      {!loading && children}
     </AuthContext.Provider>
   );
 };

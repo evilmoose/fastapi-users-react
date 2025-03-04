@@ -5,10 +5,12 @@ FastAPI application entry point.
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_users import schemas
+from app.core.config import settings
 
+# add routers
 from app.api.leads import router as leads_router
 from app.api.users import auth_backend, fastapi_users
-from app.core.config import settings
+from app.api.blogs import router as blog_router
 
 
 # Create FastAPI app
@@ -83,7 +85,14 @@ app.include_router(
     tags=["leads"],
 )
 
+# Include blog routes
+app.include_router(
+    blog_router,
+    prefix=f"{settings.API_V1_STR}/blogs",
+    tags=["blogs"],
+)
 
+# Root endpoint
 @app.get("/")
 async def root():
     """Root endpoint."""

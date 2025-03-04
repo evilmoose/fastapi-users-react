@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 const Navbar = () => {
-  const { currentUser, logout } = useAuth();
+  const { currentUser, logout, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -30,6 +30,23 @@ const Navbar = () => {
               <Link to="/" className="px-3 py-2 rounded-md text-sm font-medium text-neutral-700 hover:text-primary">
                 Home
               </Link>
+              <Link to="/solutions" className="px-3 py-2 rounded-md text-sm font-medium text-neutral-700 hover:text-primary">
+                Solutions
+              </Link>
+              <Link to="/pricing" className="px-3 py-2 rounded-md text-sm font-medium text-neutral-700 hover:text-primary">
+                Pricing
+              </Link>
+              <Link to="/blog" className="px-3 py-2 rounded-md text-sm font-medium text-neutral-700 hover:text-primary">
+                Blog
+              </Link>
+              {isAdmin && (
+                <Link
+                  to="/blog/new"
+                  className="px-3 py-2 rounded-md text-sm font-medium text-primary"
+                >
+                  New Post
+                </Link>
+              )}
               {currentUser ? (
                 <>
                   <Link to="/dashboard" className="px-3 py-2 rounded-md text-sm font-medium text-neutral-700 hover:text-primary">
@@ -87,6 +104,36 @@ const Navbar = () => {
             >
               Home
             </Link>
+            <Link
+              to="/solutions"
+              className="block px-3 py-2 rounded-md text-base font-medium text-neutral-700 hover:text-primary hover:bg-neutral-100"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Solutions
+            </Link>
+            <Link
+              to="/pricing"
+              className="block px-3 py-2 rounded-md text-base font-medium text-neutral-700 hover:text-primary hover:bg-neutral-100"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Pricing
+            </Link>
+            <Link
+              to="/blog"
+              className="block px-3 py-2 rounded-md text-base font-medium text-neutral-700 hover:text-primary hover:bg-neutral-100"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Blog
+            </Link>
+            {isAdmin && (
+              <Link
+                to="/blog/new"
+                className="block px-3 py-2 rounded-md text-base font-medium text-primary hover:text-primary hover:bg-neutral-100"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                New Post
+              </Link>
+            )}
             {currentUser ? (
               <>
                 <Link

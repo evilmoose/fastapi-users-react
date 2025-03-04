@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import TrustedBy from './TrustedBy';
 
 const HeroSection = () => {
   return (
@@ -20,7 +21,7 @@ const HeroSection = () => {
                 Get Started
               </Link>
               <Link
-                to="/learn-more"
+                to="/solutions"
                 className="inline-flex items-center justify-center px-6 py-3 border border-neutral-300 text-base font-medium rounded-md text-neutral-700 bg-white hover:bg-neutral-100 transition-colors"
               >
                 Learn More
@@ -36,6 +37,9 @@ const HeroSection = () => {
           </div>
         </div>
       </div>
+
+      {/* Industry-Leading Tools Section */}
+      <TrustedBy />
     </div>
   );
 };

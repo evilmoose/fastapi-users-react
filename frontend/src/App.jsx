@@ -6,7 +6,13 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import NotFound from './pages/NotFound';
+import Solutions from './pages/Solutions';
+import Pricing from './pages/Pricing';
+import BlogPost from './pages/BlogPost';
 import ProtectedRoute from './components/ProtectedRoute';
+import AdminRoute from './components/AdminRoute';
+import BlogPostEditor from './pages/BlogPostEditor';
+import BlogListing from './pages/BlogListing';
 
 function App() {
   return (
@@ -19,6 +25,26 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
+              <Route path="/solutions" element={<Solutions />} />
+              <Route path="/pricing" element={<Pricing />} />
+              <Route path="/blog" element={<BlogListing />} />
+              <Route path="/blog/:id" element={<BlogPost />} />
+              <Route 
+                path="/blog/new" 
+                element={
+                  <AdminRoute>
+                    <BlogPostEditor />
+                  </AdminRoute>
+                } 
+              />
+              <Route 
+                path="/blog/:id/edit" 
+                element={
+                  <AdminRoute>
+                    <BlogPostEditor />
+                  </AdminRoute>
+                } 
+              />
               <Route 
                 path="/dashboard" 
                 element={
