@@ -1,0 +1,59 @@
+"""
+PDF document schemas.
+"""
+
+from datetime import datetime
+from typing import Optional, Dict, Any, List
+from pydantic import BaseModel
+
+
+class PDFDocumentBase(BaseModel):
+    """Base PDF document schema."""
+    filename: str
+    original_filename: str
+    content_type: str
+    file_size: int
+
+
+class PDFDocumentCreate(PDFDocumentBase):
+    """PDF document create schema."""
+    pass
+
+
+class PDFDocumentUpdate(BaseModel):
+    """PDF document update schema."""
+    extracted_text: Optional[str] = None
+    extracted_data: Optional[Dict[str, Any]] = None
+
+
+class BoundingBox(BaseModel):
+    """Bounding box schema for OCR results."""
+    x: float
+    y: float
+    width: float
+    height: float
+    page: int
+    text: str
+    confidence: float
+
+
+class OCRResult(BaseModel):
+    """OCR result schema."""
+    text: str
+    bounding_boxes: List[BoundingBox]
+    structured_data: Optional[Dict[str, Any]] = None
+
+
+class PDFDocumentResponse(PDFDocumentBase):
+    """PDF document response schema."""
+    id: int
+    user_id: int
+    s3_key: str
+    extracted_text: Optional[str] = None
+    extracted_data: Optional[Dict[str, Any]] = None
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        """Pydantic config."""
+        from_attributes = True 

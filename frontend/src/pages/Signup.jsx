@@ -1,12 +1,13 @@
 import AuthForm from '../components/AuthForm';
+import NormalScrollLayout from '../components/NormalScrollLayout';
 
 const Signup = () => {
   return (
-    <div className="min-h-screen bg-neutral-100 py-12">
-      <div className="max-w-md mx-auto px-4 sm:px-6">
+    <NormalScrollLayout>
+      <div className="max-w-md mx-auto px-4 sm:px-6 py-12">
         <AuthForm type="signup" />
       </div>
-    </div>
+    </NormalScrollLayout>
   );
 };
 

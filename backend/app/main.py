@@ -11,6 +11,7 @@ from app.core.config import settings
 from app.api.leads import router as leads_router
 from app.api.users import auth_backend, fastapi_users
 from app.api.blogs import router as blog_router
+from app.api.pdfs import router as pdf_router
 
 
 # Create FastAPI app
@@ -90,6 +91,13 @@ app.include_router(
     blog_router,
     prefix=f"{settings.API_V1_STR}/blogs",
     tags=["blogs"],
+)
+
+# Include PDF routes
+app.include_router(
+    pdf_router,
+    prefix=f"{settings.API_V1_STR}/pdfs",
+    tags=["pdfs"],
 )
 
 # Root endpoint

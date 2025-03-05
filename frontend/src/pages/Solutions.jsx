@@ -1,7 +1,9 @@
+import NormalScrollLayout from '../components/NormalScrollLayout';
+
 const Solutions = () => {
   return (
-    <div className="min-h-screen bg-neutral-100 py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <NormalScrollLayout>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h1 className="text-3xl font-bold text-primary mb-6 text-center">Our Automation Solutions</h1>
         <p className="text-lg text-neutral-600 text-center mb-12">
           Whether you're just starting or scaling fast, our flexible solutions help you streamline processes and unlock growth.
@@ -21,31 +23,35 @@ const Solutions = () => {
           </ul>
         </div>
 
-        {/* Full Automation Audit */}
+        {/* Custom Automation */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <h2 className="text-2xl font-semibold text-primary mb-4">Full Automation Audit & Fractional RevOps</h2>
+          <h2 className="text-2xl font-semibold text-primary mb-4">Custom Automation Development</h2>
           <p className="text-neutral-600 mb-6">
-            Deep-dive into your processes to uncover bottlenecks, design better workflows, and ensure your revenue operations flow smoothly.
+            Bespoke workflows designed for your unique business processes and integrated with your tech stack.
           </p>
-          <p>✔️ Full Process Mapping<br/>
-             ✔️ Automation Recommendations<br/>
-             ✔️ Quarterly Reviews & Optimization
-          </p>
+          <ul className="space-y-4">
+            <li><strong>Process Analysis:</strong> We map your current workflows and identify automation opportunities</li>
+            <li><strong>Custom Development:</strong> Our experts build tailored solutions that integrate with your existing tools</li>
+            <li><strong>Testing & Deployment:</strong> Rigorous testing ensures smooth implementation with minimal disruption</li>
+            <li><strong>Training & Support:</strong> Comprehensive training and ongoing support for your team</li>
+          </ul>
         </div>
 
-        {/* AI-Powered Process Optimization */}
+        {/* Managed Services */}
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-2xl font-semibold text-primary mb-4">AI-Powered Process Optimization</h2>
+          <h2 className="text-2xl font-semibold text-primary mb-4">Managed Automation Services</h2>
           <p className="text-neutral-600 mb-6">
-            Add intelligence to your workflows — predict lead quality, detect bottlenecks, and generate insights using AI.
+            Let our experts handle everything — from strategy to implementation and ongoing optimization.
           </p>
-          <p>✔️ Lead Scoring with Langchain<br/>
-             ✔️ Sentiment Analysis from Calls & Emails<br/>
-             ✔️ Process Health Alerts & Recommendations
-          </p>
+          <ul className="space-y-4">
+            <li><strong>Strategy Development:</strong> Comprehensive automation roadmap aligned with your business goals</li>
+            <li><strong>Full Implementation:</strong> End-to-end deployment of your automation ecosystem</li>
+            <li><strong>Continuous Optimization:</strong> Regular reviews and improvements to maximize ROI</li>
+            <li><strong>Dedicated Support:</strong> Your personal automation team, available when you need them</li>
+          </ul>
         </div>
       </div>
-    </div>
+    </NormalScrollLayout>
   );
 };
 

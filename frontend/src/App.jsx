@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
@@ -13,80 +13,103 @@ import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
 import BlogPostEditor from './pages/BlogPostEditor';
 import BlogListing from './pages/BlogListing';
+import PDFUpload from './pages/PDFUpload';
+import PdfViewer from './pages/PdfViewer';
+import Profile from './pages/Profile';
+import Notifications from './pages/Notifications';
+import SimpleFooter from './components/SimpleFooter';
+import NormalFooter from './components/NormalFooter';
+
+// Wrapper component to conditionally render different layouts
+const AppContent = () => {
+  const location = useLocation();
+  const path = location.pathname;
+  
+  // Pages that should have normal scrolling and full footer
+  const normalScrollPages = ['/', '/solutions', '/pricing'];
+  const shouldUseNormalScroll = normalScrollPages.includes(path);
+  
+  return (
+    <div className={shouldUseNormalScroll ? "" : "flex flex-col h-screen overflow-hidden"}>
+      <Navbar />
+      <main className={shouldUseNormalScroll ? "" : "flex-grow overflow-hidden"}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/solutions" element={<Solutions />} />
+          <Route path="/pricing" element={<Pricing />} />
+          <Route path="/blog" element={<BlogListing />} />
+          <Route path="/blog/:id" element={<BlogPost />} />
+          <Route 
+            path="/blog/new" 
+            element={
+              <AdminRoute>
+                <BlogPostEditor />
+              </AdminRoute>
+            } 
+          />
+          <Route 
+            path="/blog/:id/edit" 
+            element={
+              <AdminRoute>
+                <BlogPostEditor />
+              </AdminRoute>
+            } 
+          />
+          <Route 
+            path="/dashboard" 
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/profile" 
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/notifications" 
+            element={
+              <ProtectedRoute>
+                <Notifications />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/pdf-upload" 
+            element={
+              <ProtectedRoute>
+                <PDFUpload />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/pdf-viewer/:pdfId" 
+            element={
+              <ProtectedRoute>
+                <PdfViewer />
+              </ProtectedRoute>
+            } 
+          />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </main>
+      {shouldUseNormalScroll ? <NormalFooter /> : <SimpleFooter />}
+    </div>
+  );
+};
 
 function App() {
   return (
     <Router>
       <AuthProvider>
-        <div className="flex flex-col min-h-screen">
-          <Navbar />
-          <main className="flex-grow">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/solutions" element={<Solutions />} />
-              <Route path="/pricing" element={<Pricing />} />
-              <Route path="/blog" element={<BlogListing />} />
-              <Route path="/blog/:id" element={<BlogPost />} />
-              <Route 
-                path="/blog/new" 
-                element={
-                  <AdminRoute>
-                    <BlogPostEditor />
-                  </AdminRoute>
-                } 
-              />
-              <Route 
-                path="/blog/:id/edit" 
-                element={
-                  <AdminRoute>
-                    <BlogPostEditor />
-                  </AdminRoute>
-                } 
-              />
-              <Route 
-                path="/dashboard" 
-                element={
-                  <ProtectedRoute>
-                    <Dashboard />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </main>
-          <footer className="bg-neutral-800 text-white py-8">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">ArtOfWorkflows</h3>
-                  <p className="text-neutral-400">
-                    Streamline your business processes with our powerful workflow management solution.
-                  </p>
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
-                  <ul className="space-y-2">
-                    <li><a href="/" className="text-neutral-400 hover:text-white">Home</a></li>
-                    <li><a href="/login" className="text-neutral-400 hover:text-white">Login</a></li>
-                    <li><a href="/signup" className="text-neutral-400 hover:text-white">Sign Up</a></li>
-                  </ul>
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">Contact</h3>
-                  <p className="text-neutral-400">
-                    Email: info@artofworkflows.com<br />
-                    Phone: (123) 456-7890
-                  </p>
-                </div>
-              </div>
-              <div className="mt-8 pt-8 border-t border-neutral-700 text-center text-neutral-400">
-                <p>&copy; {new Date().getFullYear()} ArtOfWorkflows. All rights reserved.</p>
-              </div>
-            </div>
-          </footer>
-        </div>
+        <AppContent />
       </AuthProvider>
     </Router>
   );

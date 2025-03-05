@@ -32,6 +32,16 @@ class Settings(BaseSettings):
     # 60 minutes * 24 hours * 8 days = 8 days
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
     
+    # AWS
+    AWS_ACCESS_KEY_ID: str = ""
+    AWS_SECRET_ACCESS_KEY: str = ""
+    AWS_REGION: str = "us-east-1"
+    S3_BUCKET_NAME: str = ""
+    
+    # Replicate
+    REPLICATE_API_TOKEN: str = ""
+    REPLICATE_MODEL_NAME: str = "meta/llama-2-70b-chat:02e509c789964a7ea8736978a43525956ef40397be9033abf9fd2badfe68c9e3"
+    
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=True)
 
 

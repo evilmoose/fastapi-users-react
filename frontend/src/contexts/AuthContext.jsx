@@ -1,4 +1,5 @@
 import { createContext, useState, useContext, useEffect } from 'react';
+import { formatAuthError, getCurrentUser, clearAuth } from '../utils/auth';
 
 const AuthContext = createContext();
 
@@ -11,19 +12,10 @@ export const AuthProvider = ({ children }) => {
 
   // Check if user is already logged in on mount
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const user = localStorage.getItem('user');
-    
-    if (token && user) {
-      try {
-        setCurrentUser(JSON.parse(user));
-      } catch (e) {
-        // Invalid user data in localStorage
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-      }
+    const user = getCurrentUser();
+    if (user) {
+      setCurrentUser(user);
     }
-    
     setLoading(false);
   }, []);
 
@@ -47,7 +39,7 @@ export const AuthProvider = ({ children }) => {
       const data = await response.json();
       
       if (!response.ok) {
-        throw new Error(data.detail || 'Login failed');
+        throw new Error(formatAuthError(data));
       }
       
       // Store token
@@ -63,7 +55,7 @@ export const AuthProvider = ({ children }) => {
       const userData = await userResponse.json();
       
       if (!userResponse.ok) {
-        throw new Error('Failed to fetch user data');
+        throw new Error(formatAuthError(userData));
       }
       
       // Store user data
@@ -84,18 +76,31 @@ export const AuthProvider = ({ children }) => {
     setError(null);
     
     try {
+      // Split name into first_name and last_name
+      const nameParts = name.split(' ');
+      const first_name = nameParts[0];
+      const last_name = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
+      
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ 
+          email, 
+          password,
+          first_name,
+          last_name,
+          is_active: true,
+          is_verified: false,
+          is_superuser: false
+        }),
       });
       
       const data = await response.json();
       
       if (!response.ok) {
-        throw new Error(data.detail || 'Signup failed');
+        throw new Error(formatAuthError(data));
       }
       
       // Auto login after signup
@@ -110,8 +115,7 @@ export const AuthProvider = ({ children }) => {
 
   // Logout function
   const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    clearAuth();
     setCurrentUser(null);
   };
 

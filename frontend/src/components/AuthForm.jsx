@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -8,8 +8,8 @@ const AuthForm = ({ type = 'login' }) => {
   const navigate = useNavigate();
   const location = useLocation();
   
-  // Get the redirect path from location state or default to home
-  const from = location.state?.from?.pathname || '/';
+  // Get the redirect path from location state or default to dashboard for logged in users
+  const from = location.state?.from?.pathname || '/dashboard';
   
   const [formData, setFormData] = useState({
     name: '',
@@ -21,35 +21,44 @@ const AuthForm = ({ type = 'login' }) => {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   
+  // Clear errors when switching between login and signup
+  useEffect(() => {
+    setError('');
+  }, [type]);
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
+    // Clear errors when user starts typing
+    setError('');
   };
   
   const validateForm = () => {
     setError('');
     
-    if (!isLogin && formData.name.trim() === '') {
-      setError('Name is required');
-      return false;
-    }
-    
-    if (formData.email.trim() === '') {
-      setError('Email is required');
-      return false;
-    }
-    
-    if (formData.password.trim() === '') {
-      setError('Password is required');
-      return false;
-    }
-    
-    if (!isLogin && formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
-      return false;
+    if (isLogin) {
+      if (!formData.email || !formData.password) {
+        setError('Please fill in all fields');
+        return false;
+      }
+    } else {
+      if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword) {
+        setError('Please fill in all fields');
+        return false;
+      }
+      
+      if (formData.password !== formData.confirmPassword) {
+        setError('Passwords do not match');
+        return false;
+      }
+      
+      if (formData.password.length < 8) {
+        setError('Password must be at least 8 characters long');
+        return false;
+      }
     }
     
     return true;
@@ -65,14 +74,16 @@ const AuthForm = ({ type = 'login' }) => {
     try {
       if (isLogin) {
         await login(formData.email, formData.password);
+        // Always redirect to dashboard after successful login
+        navigate('/dashboard', { replace: true });
       } else {
         await signup(formData.name, formData.email, formData.password);
+        // After signup, also redirect to dashboard
+        navigate('/dashboard', { replace: true });
       }
-      
-      // Redirect to the page they were trying to access or home
-      navigate(from, { replace: true });
     } catch (err) {
-      // Error is handled by the auth context
+      // Error is already handled by the auth context
+      console.error('Authentication error:', err.message);
     } finally {
       setIsSubmitting(false);
     }
@@ -120,6 +131,7 @@ const AuthForm = ({ type = 'login' }) => {
             onChange={handleChange}
             className="w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             placeholder="john@example.com"
+            autoComplete="email"
           />
         </div>
         
@@ -135,6 +147,7 @@ const AuthForm = ({ type = 'login' }) => {
             onChange={handleChange}
             className="w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             placeholder="••••••••"
+            autoComplete={isLogin ? "current-password" : "new-password"}
           />
         </div>
         
@@ -151,6 +164,7 @@ const AuthForm = ({ type = 'login' }) => {
               onChange={handleChange}
               className="w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               placeholder="••••••••"
+              autoComplete="new-password"
             />
           </div>
         )}

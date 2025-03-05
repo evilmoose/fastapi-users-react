@@ -1,9 +1,14 @@
 import HeroSection from '../components/HeroSection';
 import LeadForm from '../components/LeadForm';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import NormalScrollLayout from '../components/NormalScrollLayout';
 
 const Home = () => {
+  const { currentUser } = useAuth();
+  
   return (
-    <div className="min-h-screen bg-neutral-100">
+    <NormalScrollLayout>
       {/* Hero Section */}
       <HeroSection />
 
@@ -57,6 +62,85 @@ const Home = () => {
         </div>
       </section>
 
+      {/* PDF Processing Section */}
+      <section className="py-16 bg-neutral-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div>
+              <h2 className="text-3xl font-bold text-primary mb-4">Intelligent PDF Processing</h2>
+              <p className="text-lg text-neutral-600 mb-6">
+                Transform your document workflows with our AI-powered PDF processing. Extract text, data, and insights automatically.
+              </p>
+              <ul className="space-y-3 mb-8">
+                <li className="flex items-start">
+                  <svg className="h-6 w-6 text-accent-green mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-neutral-700">Advanced OCR with AWS Textract</span>
+                </li>
+                <li className="flex items-start">
+                  <svg className="h-6 w-6 text-accent-green mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-neutral-700">AI-powered data extraction with LangChain</span>
+                </li>
+                <li className="flex items-start">
+                  <svg className="h-6 w-6 text-accent-green mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-neutral-700">Interactive visualization with bounding boxes</span>
+                </li>
+              </ul>
+              {currentUser ? (
+                <Link 
+                  to="/pdf-upload" 
+                  className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                >
+                  Try PDF Processing
+                </Link>
+              ) : (
+                <Link 
+                  to="/signup" 
+                  className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                >
+                  Sign Up to Try PDF Processing
+                </Link>
+              )}
+            </div>
+            <div className="relative">
+              <div className="bg-white p-4 rounded-lg shadow-lg">
+                <div className="aspect-w-16 aspect-h-9 bg-neutral-100 rounded overflow-hidden">
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    className="h-24 w-24 text-neutral-400 m-auto" 
+                    fill="none" 
+                    viewBox="0 0 24 24" 
+                    stroke="currentColor"
+                  >
+                    <path 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round" 
+                      strokeWidth={1.5} 
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" 
+                    />
+                  </svg>
+                </div>
+                <div className="mt-4 space-y-2">
+                  <div className="h-4 bg-neutral-200 rounded w-3/4"></div>
+                  <div className="h-4 bg-neutral-200 rounded w-1/2"></div>
+                  <div className="h-4 bg-neutral-200 rounded w-5/6"></div>
+                </div>
+              </div>
+              <div className="absolute -top-4 -right-4 bg-accent-blue text-white p-3 rounded-lg shadow-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section with Lead Form */}
       <section className="py-16 bg-neutral-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -93,7 +177,7 @@ const Home = () => {
           </div>
         </div>
       </section>
-    </div>
+    </NormalScrollLayout>
   );
 };
 

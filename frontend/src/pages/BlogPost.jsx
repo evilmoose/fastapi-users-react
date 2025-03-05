@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import LayoutWithScroll from '../components/LayoutWithScroll';
 
 const BlogPost = () => {
     const { id } = useParams();
@@ -28,156 +29,267 @@ const BlogPost = () => {
             const commentsRes = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/blogs/${id}/comments/`);
             if (!commentsRes.ok) throw new Error('Failed to fetch comments');
             const commentsData = await commentsRes.json();
-
-            // Comments are already nested from the backend
             setComments(commentsData);
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Error fetching post and comments:', error);
         } finally {
             setIsLoading(false);
         }
     };
 
-    const postComment = async (parentId = null) => {
-        const content = parentId ? replyContent[parentId] : commentContent;
-        if (!content) return;
+    const handleCommentSubmit = async () => {
+        if (!commentContent.trim()) return;
 
-        await fetch(`${import.meta.env.VITE_API_URL}/api/v1/blogs/comments/`, {
-            method: 'POST',
-            headers: getAuthHeaders(),
-            body: JSON.stringify({ content, post_id: id, parent_id: parentId })
-        });
-
-        if (parentId) {
-            setReplyContent(prev => ({ ...prev, [parentId]: '' }));
-        } else {
+        try {
+            await fetch(`${import.meta.env.VITE_API_URL}/api/v1/blogs/comments/`, {
+                method: 'POST',
+                headers: getAuthHeaders(),
+                body: JSON.stringify({ content: commentContent, post_id: id, parent_id: null })
+            });
             setCommentContent('');
+            fetchPostAndComments();
+        } catch (error) {
+            console.error('Error posting comment:', error);
         }
-
-        fetchPostAndComments();
     };
 
-    const handleReplyChange = (parentId, value) => {
-        setReplyContent(prev => ({ ...prev, [parentId]: value }));
+    const toggleReplyForm = (commentId) => {
+        setReplyContent(prev => {
+            const newState = { ...prev };
+            if (newState[commentId] === undefined) {
+                newState[commentId] = '';
+            } else {
+                delete newState[commentId];
+            }
+            return newState;
+        });
     };
 
-    const renderComments = (commentsList, level = 0) => {
-        return commentsList.map(comment => (
-            <div key={comment.id} className={`
-                ${level === 0 ? 'border-l-4 border-primary pl-4 mt-4' : ''}
-                ${level === 1 ? 'border-l-2 border-secondary pl-4 mt-3 ml-6' : ''}
-                ${level === 2 ? 'pl-4 mt-2 ml-8 border-l border-gray-300' : ''}
-            `}>
-                <p className="font-semibold">{comment.user_name}</p>
-                <p>{comment.content}</p>
-                <p className="text-sm text-gray-500">{new Date(comment.created_at).toLocaleString()}</p>
+    const handleReplyChange = (commentId, value) => {
+        setReplyContent(prev => ({ ...prev, [commentId]: value }));
+    };
 
-                {currentUser && (
-                    <div className="mt-2">
-                        <textarea
-                            value={replyContent[comment.id] || ''}
-                            onChange={(e) => handleReplyChange(comment.id, e.target.value)}
-                            placeholder={`Reply to ${level === 2 ? 'thread' : 'comment'}...`}
-                            className="w-full p-2 border rounded"
-                        />
-                        <button 
-                            onClick={() => postComment(comment.id)} 
-                            className={`mt-2 py-1 px-4 text-white rounded
-                                ${level === 2 ? 'bg-gray-500 hover:bg-gray-600' : 'bg-primary'}
-                            `}
-                        >
-                            Reply
-                        </button>
-                    </div>
-                )}
+    const handleReplySubmit = async (parentId) => {
+        if (!replyContent[parentId]?.trim()) return;
 
-                {comment.replies && comment.replies.length > 0 && (
-                    <div className={level >= 2 ? 'ml-4' : ''}>
-                        {renderComments(comment.replies, level + 1)}
-                    </div>
-                )}
-            </div>
-        ));
+        try {
+            await fetch(`${import.meta.env.VITE_API_URL}/api/v1/blogs/comments/`, {
+                method: 'POST',
+                headers: getAuthHeaders(),
+                body: JSON.stringify({ 
+                    content: replyContent[parentId], 
+                    post_id: id, 
+                    parent_id: parentId 
+                })
+            });
+            setReplyContent(prev => ({ ...prev, [parentId]: undefined }));
+            fetchPostAndComments();
+        } catch (error) {
+            console.error('Error posting reply:', error);
+        }
+    };
+
+    const handleDeleteComment = async (commentId) => {
+        if (!window.confirm('Are you sure you want to delete this comment?')) return;
+
+        try {
+            await fetch(`${import.meta.env.VITE_API_URL}/api/v1/blogs/comments/${commentId}`, {
+                method: 'DELETE',
+                headers: getAuthHeaders()
+            });
+            fetchPostAndComments();
+        } catch (error) {
+            console.error('Error deleting comment:', error);
+        }
+    };
+
+    const handleDeleteReply = async (commentId, replyId) => {
+        if (!window.confirm('Are you sure you want to delete this reply?')) return;
+
+        try {
+            await fetch(`${import.meta.env.VITE_API_URL}/api/v1/blogs/comments/${replyId}`, {
+                method: 'DELETE',
+                headers: getAuthHeaders()
+            });
+            fetchPostAndComments();
+        } catch (error) {
+            console.error('Error deleting reply:', error);
+        }
     };
 
     const handleDelete = async () => {
-        if (!confirm('Are you sure you want to delete this post?')) return;
-        
+        if (!window.confirm('Are you sure you want to delete this post?')) return;
+
         try {
             const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/blogs/${id}`, {
                 method: 'DELETE',
-                headers: getAuthHeaders(),
+                headers: getAuthHeaders()
             });
-            
+
             if (response.ok) {
                 navigate('/blog');
+            } else {
+                throw new Error('Failed to delete post');
             }
         } catch (error) {
             console.error('Error deleting post:', error);
         }
     };
 
-    if (isLoading) return <div>Loading...</div>;
-    if (!post) return <div>Post not found</div>;
+    if (isLoading) return (
+        <LayoutWithScroll>
+            <div className="flex items-center justify-center h-full">
+                <p className="text-lg text-neutral-600">Loading...</p>
+            </div>
+        </LayoutWithScroll>
+    );
+    
+    if (!post) return (
+        <LayoutWithScroll>
+            <div className="flex items-center justify-center h-full">
+                <p className="text-lg text-neutral-600">Post not found</p>
+            </div>
+        </LayoutWithScroll>
+    );
 
     return (
-        <div className="bg-gray-50 min-h-screen">
-            <div className="container mx-auto px-6 py-12 max-w-7xl">
-                <h1 className="text-3xl font-bold mb-8">Blog Post</h1>
-                
-                {post && (
-                    <div className="bg-white rounded-lg shadow-md p-8 mb-8">
-                        <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-2xl font-bold">{post.title}</h2>
-                            {isAdmin && (
-                                <div className="space-x-4">
-                                    <Link 
-                                        to={`/blog/${id}/edit`}
-                                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                                    >
-                                        Edit
-                                    </Link>
-                                    <button 
-                                        onClick={handleDelete}
-                                        className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-                                    >
-                                        Delete
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-                        <p className="text-gray-700 leading-relaxed">{post.content}</p>
+        <LayoutWithScroll>
+            <h1 className="text-3xl font-bold text-primary mb-8">Blog Post</h1>
+            
+            {post && (
+                <div className="bg-white rounded-lg shadow-md p-8 mb-8">
+                    <div className="flex justify-between items-center mb-6">
+                        <h2 className="text-2xl font-bold">{post.title}</h2>
+                        {isAdmin && (
+                            <div className="space-x-4">
+                                <Link 
+                                    to={`/blog/${id}/edit`}
+                                    className="bg-accent-blue text-white px-4 py-2 rounded hover:bg-blue-600"
+                                >
+                                    Edit
+                                </Link>
+                                <button 
+                                    onClick={handleDelete}
+                                    className="bg-accent-red text-white px-4 py-2 rounded hover:bg-red-600"
+                                >
+                                    Delete
+                                </button>
+                            </div>
+                        )}
                     </div>
-                )}
+                    <p className="text-neutral-700 leading-relaxed">{post.content}</p>
+                </div>
+            )}
+
+            <div className="bg-white rounded-lg shadow-md p-8">
+                <h3 className="text-xl font-bold mb-6">Comments</h3>
                 
-                {/* Comments section */}
-                <section className="bg-white rounded-lg shadow-md p-8">
-                    <h2 className="text-2xl font-bold mb-4">Comments</h2>
-                    {currentUser ? (
-                        <div className="mb-6">
-                            <textarea
-                                value={commentContent}
-                                onChange={(e) => setCommentContent(e.target.value)}
-                                placeholder="Write a comment..."
-                                className="w-full p-2 border rounded"
-                                rows="3"
-                            />
-                            <button 
-                                onClick={() => postComment()}
-                                className="mt-2 bg-primary text-white py-2 px-4 rounded"
-                            >
-                                Post Comment
-                            </button>
-                        </div>
-                    ) : (
-                        <p className="mb-6">
-                            Please <Link to="/login" className="text-primary hover:underline">login</Link> to comment.
-                        </p>
-                    )}
-                    {renderComments(comments)}
-                </section>
+                <div className="mb-8">
+                    <textarea
+                        value={commentContent}
+                        onChange={(e) => setCommentContent(e.target.value)}
+                        placeholder="Write a comment..."
+                        className="w-full p-4 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent-blue"
+                        rows="4"
+                    ></textarea>
+                    <div className="mt-2 flex justify-end">
+                        <button
+                            onClick={handleCommentSubmit}
+                            className="bg-accent-blue text-white px-4 py-2 rounded hover:bg-blue-600"
+                            disabled={!commentContent.trim()}
+                        >
+                            Post Comment
+                        </button>
+                    </div>
+                </div>
+                
+                {comments.length > 0 ? (
+                    <div className="space-y-6">
+                        {comments.map(comment => (
+                            <div key={comment.id} className="border-b border-neutral-200 pb-6">
+                                <div className="flex justify-between items-start mb-2">
+                                    <div>
+                                        <p className="font-medium">{comment.user_email}</p>
+                                        <p className="text-sm text-neutral-500">
+                                            {new Date(comment.created_at).toLocaleString()}
+                                        </p>
+                                    </div>
+                                    {(currentUser?.email === comment.user_email || isAdmin) && (
+                                        <button
+                                            onClick={() => handleDeleteComment(comment.id)}
+                                            className="text-accent-red hover:underline text-sm"
+                                        >
+                                            Delete
+                                        </button>
+                                    )}
+                                </div>
+                                <p className="text-neutral-700 mb-4">{comment.content}</p>
+                                
+                                {/* Reply section */}
+                                <div className="ml-8 mt-4">
+                                    <button
+                                        onClick={() => toggleReplyForm(comment.id)}
+                                        className="text-accent-blue hover:underline text-sm mb-2"
+                                    >
+                                        Reply
+                                    </button>
+                                    
+                                    {replyContent[comment.id] !== undefined && (
+                                        <div className="mt-2">
+                                            <textarea
+                                                value={replyContent[comment.id]}
+                                                onChange={(e) => handleReplyChange(comment.id, e.target.value)}
+                                                placeholder="Write a reply..."
+                                                className="w-full p-3 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent-blue"
+                                                rows="3"
+                                            ></textarea>
+                                            <div className="mt-2 flex justify-end">
+                                                <button
+                                                    onClick={() => handleReplySubmit(comment.id)}
+                                                    className="bg-accent-blue text-white px-3 py-1 rounded text-sm hover:bg-blue-600"
+                                                    disabled={!replyContent[comment.id]?.trim()}
+                                                >
+                                                    Post Reply
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+                                    
+                                    {/* Display replies */}
+                                    {comment.replies && comment.replies.length > 0 && (
+                                        <div className="mt-4 space-y-4">
+                                            {comment.replies.map(reply => (
+                                                <div key={reply.id} className="border-t border-neutral-100 pt-4">
+                                                    <div className="flex justify-between items-start mb-2">
+                                                        <div>
+                                                            <p className="font-medium">{reply.user_email}</p>
+                                                            <p className="text-sm text-neutral-500">
+                                                                {new Date(reply.created_at).toLocaleString()}
+                                                            </p>
+                                                        </div>
+                                                        {(currentUser?.email === reply.user_email || isAdmin) && (
+                                                            <button
+                                                                onClick={() => handleDeleteReply(comment.id, reply.id)}
+                                                                className="text-accent-red hover:underline text-sm"
+                                                            >
+                                                                Delete
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                    <p className="text-neutral-700">{reply.content}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <p className="text-neutral-600 text-center py-4">No comments yet. Be the first to comment!</p>
+                )}
             </div>
-        </div>
+        </LayoutWithScroll>
     );
 };
 
