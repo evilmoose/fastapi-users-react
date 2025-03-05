@@ -13,3 +13,6 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
+
+# developer docs
+ADD_FEATURE.md
