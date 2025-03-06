@@ -6,6 +6,7 @@ import os
 import boto3
 import logging
 from typing import Dict, Any, List
+from botocore.exceptions import ClientError
 from app.schemas.pdf import BoundingBox, OCRResult
 
 logger = logging.getLogger(__name__)
@@ -48,6 +49,22 @@ class TextractService:
             
             # Process the response
             return self._process_textract_response(response)
+        except ClientError as e:
+            error_code = e.response.get('Error', {}).get('Code', '')
+            error_message = e.response.get('Error', {}).get('Message', str(e))
+            
+            logger.error(f"AWS Textract error: {error_code} - {error_message}")
+            
+            if 'UnsupportedDocumentException' in str(e):
+                # Create an OCR result with error information
+                return OCRResult(
+                    text="",
+                    bounding_boxes=[],
+                    structured_data={
+                        "error": f"An error occurred (UnsupportedDocumentException) when calling the AnalyzeDocument operation: Request has unsupported document format"
+                    }
+                )
+            raise
         except Exception as e:
             logger.error(f"Error analyzing document with Textract: {e}")
             raise

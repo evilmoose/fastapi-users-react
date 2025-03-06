@@ -4,6 +4,7 @@ Database connection and configuration.
 
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.pool import NullPool
 
 from app.core.config import settings
 
@@ -19,11 +20,15 @@ if "sslmode=require" in db_url:
     # Add SSL configuration
     connect_args["ssl"] = True
 
-# Create async engine
+# Create async engine with improved connection parameters
 engine = create_async_engine(
     db_url, 
     echo=False,
-    connect_args=connect_args
+    connect_args=connect_args,
+    pool_pre_ping=True,  # Check connection validity before using it
+    pool_recycle=3600,   # Recycle connections after 1 hour
+    pool_size=20,        # Increase pool size
+    max_overflow=10      # Allow 10 connections beyond pool_size
 )
 
 # Create async session factory

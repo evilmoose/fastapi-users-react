@@ -10,9 +10,6 @@ from pydantic import BaseModel
 class PDFDocumentBase(BaseModel):
     """Base PDF document schema."""
     filename: str
-    original_filename: str
-    content_type: str
-    file_size: int
 
 
 class PDFDocumentCreate(PDFDocumentBase):
@@ -22,8 +19,7 @@ class PDFDocumentCreate(PDFDocumentBase):
 
 class PDFDocumentUpdate(BaseModel):
     """PDF document update schema."""
-    extracted_text: Optional[str] = None
-    extracted_data: Optional[Dict[str, Any]] = None
+    ocr_data: Optional[Dict[str, Any]] = None
 
 
 class BoundingBox(BaseModel):
@@ -48,9 +44,8 @@ class PDFDocumentResponse(PDFDocumentBase):
     """PDF document response schema."""
     id: int
     user_id: int
-    s3_key: str
-    extracted_text: Optional[str] = None
-    extracted_data: Optional[Dict[str, Any]] = None
+    file_url: str
+    ocr_data: Optional[Dict[str, Any]] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
 

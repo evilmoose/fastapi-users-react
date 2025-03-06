@@ -1,6 +1,7 @@
 import { useAuth } from '../contexts/AuthContext';
 import { Link } from 'react-router-dom';
 import LayoutWithScroll from '../components/LayoutWithScroll';
+import PDFDocumentList from '../components/PDFDocumentList';
 
 const Dashboard = () => {
   const { currentUser, isAdmin } = useAuth();
@@ -88,20 +89,8 @@ const Dashboard = () => {
         </div>
         
         <div className="mt-12 border-t border-neutral-200 pt-6">
-          <h3 className="text-lg font-medium text-primary mb-4">Recent Activity</h3>
-          <div className="space-y-4">
-            <div className="flex items-start">
-              <div className="flex-shrink-0 h-10 w-10 rounded-full bg-neutral-200 flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-neutral-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-neutral-800">Account created</p>
-                <p className="text-sm text-neutral-500">Welcome to ArtOfWorkflows!</p>
-              </div>
-            </div>
-          </div>
+          <h3 className="text-lg font-medium text-primary mb-4">Recent PDF Documents</h3>
+          <PDFDocumentList limit={5} showTitle={false} />
         </div>
       </div>
     </LayoutWithScroll>

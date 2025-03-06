@@ -22,6 +22,10 @@ import asyncpg
 from app.api.users import get_user_manager, UserManager
 from app.core.db import Base, engine, async_session_factory
 from app.models.user import User
+# Import all models to ensure they're registered with Base.metadata
+from app.models.pdf import PDFDocument
+from app.models.lead import Lead
+from app.models.blog import BlogPost
 from app.main import UserCreate
 from app.core.config import settings
 
@@ -92,12 +96,26 @@ async def debug_database():
         )
         logger.info(f"Users table exists: {table_check[0]['exists']}")
         
+        # Check if documents table exists
+        pdf_table_check = await conn.fetch(
+            "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'documents')"
+        )
+        logger.info(f"Documents table exists: {pdf_table_check[0]['exists']}")
+        
         # Check columns in users table
         columns = await conn.fetch(
             "SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'users'"
         )
         logger.info("Users table columns:")
         for col in columns:
+            logger.info(f"  {col['column_name']} - {col['data_type']}")
+            
+        # Check columns in documents table
+        doc_columns = await conn.fetch(
+            "SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'documents'"
+        )
+        logger.info("Documents table columns:")
+        for col in doc_columns:
             logger.info(f"  {col['column_name']} - {col['data_type']}")
         
         await conn.close()
@@ -138,17 +156,21 @@ async def create_superuser():
 
 async def main():
     """Main function to initialize database."""
-    # Debug database before creating superuser
+    # Debug database before creating tables
     logger.info("Debugging database")
     await debug_database()
     
-    # Skip recreating the users table since it already has the correct structure
-    # logger.info("Recreating users table")
-    # await recreate_users_table()
+    # Create all tables
+    logger.info("Creating database tables")
+    await create_tables()
     
     # Create superuser
     logger.info("Creating superuser")
     await create_superuser()
+    
+    # Debug database after creating tables
+    logger.info("Debugging database after table creation")
+    await debug_database()
     
     logger.info("Initial data created")
 
